@@ -1,6 +1,39 @@
 Revision History for App-MiseEnPlace
 ====================================
 
+0.12
+----
+
+commit 9845b6b2db61b1123c60fc4e327f9763a4eaef2c
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Mon Nov 8 20:51:19 2010 -0500
+
+    fix default config file location
+
+commit fe1f712b65d18bd16c813176518e4b701a69684a
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Mon Nov 8 20:50:58 2010 -0500
+
+    add support for DIR keyword in create/links
+
+commit 69b9ba8f17ce8fdda4e35c86e000389734e69d39
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Mon Nov 8 20:41:02 2010 -0500
+
+    whitespace
+
+commit b3e04ffc02671b9737b803d9abef1df695a7cb9f
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Mon Nov 8 20:40:52 2010 -0500
+
+    handle missing config a bit more gracefully
+
+commit ba405c37c22b5468e7ae5feb5bfbcb996964728e
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Sun Nov 7 23:32:08 2010 -0500
+
+    released
+
 ===================================
 End of changes in the last 365 days
 ===================================

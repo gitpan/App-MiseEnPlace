@@ -1,6 +1,6 @@
 package App::MiseEnPlace;
 BEGIN {
-  $App::MiseEnPlace::VERSION = '0.11';
+  $App::MiseEnPlace::VERSION = '0.12';
 }
 BEGIN {
   $App::MiseEnPlace::AUTHORITY = 'cpan:GENEHACK';
@@ -32,7 +32,7 @@ has 'bindir' => (
 has 'config_file' => (
   is       => 'rw' ,
   isa      => 'Str' ,
-  default  => '~/.mise' ,
+  default  => "$ENV{HOME}/.mise" ,
   lazy     => 1 ,
   required => 1 ,
 );
@@ -136,6 +136,12 @@ sub _create_link {
 sub _load_configs {
   my( $self ) = shift;
 
+  unless ( -e $self->config_file ) {
+    say "Whoops, it looks like you don't have a ~/.mise file yet.";
+    say "Please review the documentation, create one, and try again.";
+    exit;
+  }
+
   my $base_config = _load_config_file( $self->config_file );
 
   my @links = map { _parse_linkpair( $_ , $self->homedir) }
@@ -173,10 +179,10 @@ sub _load_config_file {
   my $config;
 
   try { $config = LoadFile( glob($file) ) }
-    catch {
-      say "Failed to parse config file $file:\n\t$_";
-      exit;
-    };
+  catch {
+    say "Failed to parse config file $file:\n\t$_";
+    exit;
+  };
 
   return $config;
 
@@ -217,6 +223,9 @@ sub _parse_linkpair {
   confess "BAD LINKPAIR" unless
     my( $src , $target ) = ( %$linkpair );
 
+  # this lets 'DIR' turn into enclosing directory
+  $src = '' if $src eq 'DIR';
+
   $src    = _prepend_dir( $src , $dir );
   $target = _prepend_dir( $target , $dir ) unless $target eq 'BIN';
 
@@ -243,7 +252,7 @@ App::MiseEnPlace - A place for everything and everything in its place
 
 =head1 VERSION
 
-version 0.11
+version 0.12
 
 =head1 SYNOPSIS
 
