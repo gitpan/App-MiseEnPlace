@@ -24,7 +24,7 @@
             "App::Cmd::Simple" : 0,
             "Carp" : 0,
             "File::Basename" : 0,
-            "File::Path" : 0,
+            "File::Path" : "2.08",
             "File::Path::Expand" : 0,
             "FindBin" : 0,
             "Mouse" : 0,
@@ -54,7 +54,7 @@
          "web" : "http://github.com/genehack/app-miseenplace"
       }
    },
-   "version" : "0.12",
+   "version" : "0.13",
    "x_Dist_Zilla" : {
       "plugins" : [
          {

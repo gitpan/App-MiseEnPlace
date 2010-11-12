@@ -29,14 +29,14 @@ my %WriteMakefileArgs = (
     'App::Cmd::Simple' => '0',
     'Carp' => '0',
     'File::Basename' => '0',
-    'File::Path' => '0',
+    'File::Path' => '2.08',
     'File::Path::Expand' => '0',
     'FindBin' => '0',
     'Mouse' => '0',
     'Try::Tiny' => '0',
     'YAML' => '0'
   },
-  'VERSION' => '0.12',
+  'VERSION' => '0.13',
   'test' => {
     'TESTS' => 't/*.t'
   }

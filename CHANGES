@@ -1,8 +1,23 @@
 Revision History for App-MiseEnPlace
 ====================================
 
-0.12
+0.13
 ----
+
+commit a5475f101c240ec1a6bb798d3e5947e7e95b4b3a
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Fri Nov 12 00:00:32 2010 -0500
+
+    specify File::Path version to lock in new API
+
+commit 303283afffc94eb70a748d2800ba7430345541d9
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Mon Nov 8 20:56:12 2010 -0500
+
+    released 0.12
+
+v0.12 2010-11-08
+----------------
 
 commit 9845b6b2db61b1123c60fc4e327f9763a4eaef2c
 Author: John SJ Anderson <genehack@genehack.org>

@@ -1,6 +1,6 @@
 package App::MiseEnPlace;
 BEGIN {
-  $App::MiseEnPlace::VERSION = '0.12';
+  $App::MiseEnPlace::VERSION = '0.13';
 }
 BEGIN {
   $App::MiseEnPlace::AUTHORITY = 'cpan:GENEHACK';
@@ -15,7 +15,7 @@ use 5.010;
 use base 'App::Cmd::Simple';
 use Carp;
 use File::Basename;
-use File::Path  qw/ make_path /;
+use File::Path 2.08  qw/ make_path /;
 use File::Path::Expand;
 use Mouse;
 use Try::Tiny;
@@ -252,7 +252,7 @@ App::MiseEnPlace - A place for everything and everything in its place
 
 =head1 VERSION
 
-version 0.12
+version 0.13
 
 =head1 SYNOPSIS
 
