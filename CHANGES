@@ -1,8 +1,37 @@
 Revision History for App-MiseEnPlace
 ====================================
 
-0.13
+0.14
 ----
+
+commit 8e556929f5a821aed6e419ef8e65e6bc7d0e3151
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Sat Nov 13 15:51:32 2010 -0500
+
+    Add 'remove-bin-links' option
+
+commit 93a1dbeeac9d63d2b6a7eb7a7fae56f81b46bb7e
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Sat Nov 13 15:28:06 2010 -0500
+
+    output improvements; check existing link targets
+    
+    * colored output
+    * piped thru pager in semi-intelligent fashion
+    * better output when running non-verbose
+    
+    * if target is a link that points to something other
+      than the configured source, remove it and make the
+      correct new link.
+
+commit 581092df2764b170874cba2ca8f0c29bfe8dab5b
+Author: John SJ Anderson <genehack@genehack.org>
+Date:   Fri Nov 12 00:12:46 2010 -0500
+
+    released 0.13
+
+v0.13 2010-11-12
+----------------
 
 commit a5475f101c240ec1a6bb798d3e5947e7e95b4b3a
 Author: John SJ Anderson <genehack@genehack.org>

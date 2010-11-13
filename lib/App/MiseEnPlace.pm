@@ -1,6 +1,6 @@
 package App::MiseEnPlace;
 BEGIN {
-  $App::MiseEnPlace::VERSION = '0.13';
+  $App::MiseEnPlace::VERSION = '0.14';
 }
 BEGIN {
   $App::MiseEnPlace::AUTHORITY = 'cpan:GENEHACK';
@@ -13,11 +13,13 @@ use warnings;
 use 5.010;
 
 use base 'App::Cmd::Simple';
+use autodie;
 use Carp;
 use File::Basename;
 use File::Path 2.08  qw/ make_path /;
 use File::Path::Expand;
 use Mouse;
+use Term::ANSIColor;
 use Try::Tiny;
 use YAML        qw/ LoadFile /;
 
@@ -64,6 +66,7 @@ has 'verbose' => (
 sub opt_spec {
   return (
     [ 'config|C=s' => 'config file location (default = ~/.mise)' ] ,
+    [ 'remove-bin-links|R' => 'remove all links from ~/bin at beginning of run' ] ,
     [ 'verbose|v' => 'be verbose' ] ,
     [ 'version|V' => 'show version' ] ,
   );
@@ -87,9 +90,30 @@ sub validate_args {
 sub execute {
   my( $self , $opt , $args ) = @_;
 
+  # set up colored output if we page thru less
+  # also exit pager immediately if <1 page of output
+  $ENV{LESS} = 'RF';
+
+  # don't catch any errors here; if this fails we just output stuff like
+  # normal and nobody is the wiser.
+  eval 'use IO::Page';
+
   $self->_load_configs;
 
   $self->_create_dir( $_ )  for ( @{ $self->directories } );
+
+  if ( $opt->{remove_bin_links} and -e -d $self->bindir ) {
+    my $bin = $self->bindir;
+    opendir( my $dh , $bin );
+    while ( readdir $dh ) {
+      next unless -l "$bin/$_";
+      unlink "$bin/$_";
+      say colored('UNLINK' , 'bright_red' ) ,
+        " ~/bin/$_" if $opt->{verbose};
+    }
+    closedir( $dh );
+  }
+
   $self->_create_link( $_ ) for ( @{ $self->links } );
 
 }
@@ -97,18 +121,25 @@ sub execute {
 sub _create_dir {
   my( $self , $dir ) = @_;
 
+  my $msg;
+
   given( $dir ) {
     when( -e -d ) {
-      say "'$dir' exists" if $self->verbose;
+      $msg = colored('exists ','green') if $self->verbose;
     }
-    when( -e ) {
-      return if -l $dir;
-      say "ERROR: Creation of '$dir' blocked by non-dirctory";
+    when( -e and ! -l ) {
+      $msg = colored('ERROR: blocked by non-dirctory','bold white on_red');
     }
     default {
       make_path $dir;
-      say "Created '$dir'" if $self->verbose;
+      $msg = colored('created','bold black on_green');
     }
+  }
+
+  my $home = $self->homedir;
+  if ( $msg ) {
+    $dir =~ s/^$home/~/;
+    say "[ DIR] $msg $dir";
   }
 }
 
@@ -117,19 +148,34 @@ sub _create_link {
 
   my( $src , $target ) = @$linkpair;
 
-  if ( -e -l $target ) {
-    ### FIXME should make sure that target points to right src
-    say "Link from '$src' to '$target' exists" if $self->verbose;
+  my $msg;
+
+  if ( ! -e $src ) {
+    $msg = colored( 'ERROR:  src does not exist' , 'bold white on_red' )
   }
-  elsif ( ! -e $src ) {
-    say "Not linking '$src': it does not exist" if $self->verbose;
+  elsif( -e -l $target ) {
+    if ( readlink $target eq $src ) {
+      $msg = colored('exists ','green') if $self->verbose;
+    }
+    else {
+      unlink $target;
+      symlink $src , $target;
+      $msg = colored( 'fixed' , 'bold black on_bright_yellow' ) . '  ';
+    }
   }
   elsif ( -e $target ) {
-    say "ERROR: Creation of link from '$src' to '$target' blocked by existing file";
+    $msg = colored( 'ERROR:  blocked by existing file' , 'bold white on_red' );
   }
   else {
     symlink $src , $target;
-    say "Created link from $src to $target" if $self->verbose;
+    $msg = colored( 'created' , 'bold black on_green' );
+  }
+  my $home = $self->homedir;
+
+  if ( $msg ) {
+    $src    =~ s/^$home/~/;
+    $target =~ s/^$home/~/;
+    say "[LINK] $msg $src -> $target";
   }
 }
 
@@ -252,7 +298,7 @@ App::MiseEnPlace - A place for everything and everything in its place
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 
