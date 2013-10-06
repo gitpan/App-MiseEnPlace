@@ -1,6 +1,6 @@
 package App::MiseEnPlace;
-BEGIN {
-  $App::MiseEnPlace::VERSION = '0.14';
+{
+  $App::MiseEnPlace::VERSION = '0.15';
 }
 BEGIN {
   $App::MiseEnPlace::AUTHORITY = 'cpan:GENEHACK';
@@ -16,45 +16,50 @@ use base 'App::Cmd::Simple';
 use autodie;
 use Carp;
 use File::Basename;
-use File::Path 2.08  qw/ make_path /;
+use File::Path 2.08     qw/ make_path /;
 use File::Path::Expand;
 use Mouse;
 use Term::ANSIColor;
 use Try::Tiny;
-use YAML        qw/ LoadFile /;
+use YAML                qw/ LoadFile /;
 
-has 'bindir' => (
-  is => 'rw' ,
-  isa => 'Str' ,
-  required => 1 ,
-  default => sub { expand_filename '~/bin/' } ,
-  lazy => 1 ,
-);
-
-has 'config_file' => (
+has bindir => (
   is       => 'rw' ,
   isa      => 'Str' ,
-  default  => "$ENV{HOME}/.mise" ,
   lazy     => 1 ,
-  required => 1 ,
+  default  => sub { expand_filename '~/bin/' } ,
+);
+
+has config_file => (
+  is       => 'rw' ,
+  isa      => 'Str' ,
+  lazy     => 1 ,
+  default  => "$ENV{HOME}/.mise" ,
 );
 
 has 'directories' => (
-  is  => 'rw' ,
-  isa => 'ArrayRef[Str]' ,
+  is      => 'rw' ,
+  isa     => 'ArrayRef[Str]' ,
+  traits  => [ 'Array' ] ,
+  handles => {
+    all_directories => 'elements' ,
+  } ,
 );
 
 has 'homedir' => (
   is       => 'rw' ,
   isa      => 'Str' ,
-  required => 1 ,
   lazy     => 1 ,
   default  => $ENV{HOME} ,
 );
 
 has 'links' => (
-  is  => 'rw' ,
-  isa => 'ArrayRef[ArrayRef[Str]]' ,
+  is      => 'rw' ,
+  isa     => 'ArrayRef[ArrayRef[Str]]' ,
+  traits  => [ 'Array' ] ,
+  handles => {
+    all_links => 'elements' ,
+  } ,
 );
 
 has 'verbose' => (
@@ -65,10 +70,10 @@ has 'verbose' => (
 
 sub opt_spec {
   return (
-    [ 'config|C=s' => 'config file location (default = ~/.mise)' ] ,
+    [ 'config|C=s'         => 'config file location (default = ~/.mise)' ] ,
     [ 'remove-bin-links|R' => 'remove all links from ~/bin at beginning of run' ] ,
-    [ 'verbose|v' => 'be verbose' ] ,
-    [ 'version|V' => 'show version' ] ,
+    [ 'verbose|v'          => 'be verbose' ] ,
+    [ 'version|V'          => 'show version' ] ,
   );
 }
 
@@ -84,7 +89,6 @@ sub validate_args {
 
   $self->config_file( $opt->{config} ) if $opt->{config};
   $self->verbose( $opt->{verbose} ) if $opt->{verbose};
-
 }
 
 sub execute {
@@ -92,7 +96,7 @@ sub execute {
 
   # set up colored output if we page thru less
   # also exit pager immediately if <1 page of output
-  $ENV{LESS} = 'RF';
+  $ENV{LESS} = 'RFX';
 
   # don't catch any errors here; if this fails we just output stuff like
   # normal and nobody is the wiser.
@@ -100,21 +104,24 @@ sub execute {
 
   $self->_load_configs;
 
-  $self->_create_dir( $_ )  for ( @{ $self->directories } );
-
   if ( $opt->{remove_bin_links} and -e -d $self->bindir ) {
     my $bin = $self->bindir;
+
     opendir( my $dh , $bin );
     while ( readdir $dh ) {
       next unless -l "$bin/$_";
+
       unlink "$bin/$_";
-      say colored('UNLINK' , 'bright_red' ) ,
-        " ~/bin/$_" if $opt->{verbose};
+
+      say colored('UNLINK' , 'bright_red' ) , " ~/bin/$_"
+        if $opt->{verbose};
     }
     closedir( $dh );
   }
 
-  $self->_create_link( $_ ) for ( @{ $self->links } );
+  $self->_create_dir( $_ ) for $self->all_directories;
+
+  $self->_create_link( $_ ) for $self->all_links;
 
 }
 
@@ -123,6 +130,7 @@ sub _create_dir {
 
   my $msg;
 
+  no warnings 'experimental::smartmatch';
   given( $dir ) {
     when( -e -d ) {
       $msg = colored('exists ','green') if $self->verbose;
@@ -160,7 +168,7 @@ sub _create_link {
     else {
       unlink $target;
       symlink $src , $target;
-      $msg = colored( 'fixed' , 'bold black on_bright_yellow' ) . '  ';
+      $msg = colored( 'fixed' , 'bold black on_yellow' ) . '  ';
     }
   }
   elsif ( -e $target ) {
@@ -290,6 +298,7 @@ sub _prepend_dir {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -298,7 +307,7 @@ App::MiseEnPlace - A place for everything and everything in its place
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 
@@ -316,4 +325,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

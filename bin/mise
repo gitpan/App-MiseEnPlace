@@ -1,4 +1,4 @@
-#! /opt/perl/bin/perl
+#! /usr/bin/env perl
 # PODNAME: mise
 # ABSTRACT: manage directory and symlink creation, globally and per-project
 
@@ -14,6 +14,7 @@ use App::MiseEnPlace;
 App::MiseEnPlace->run;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -22,7 +23,7 @@ mise - manage directory and symlink creation, globally and per-project
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 
@@ -150,4 +151,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
